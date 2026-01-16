@@ -1,0 +1,204 @@
+{% extends 'base.html' %}
+{% load humanize %}
+{% block content %}
+<div class="container mx-auto px-6 py-10">
+    <!-- SECCIÓN SUPERIOR: IMAGEN E INFO PRINCIPAL -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-12 items-start">
+        
+        <!-- Lado Izquierdo: Galería Pro con Flechas -->
+        <div class="flex flex-col space-y-4">
+            
+            <!-- CONTENEDOR IMAGEN PRINCIPAL CON FLECHAS -->
+            <div class="relative bg-white p-8 md:p-12 rounded-3xl border border-gray-100 shadow-sm flex items-center justify-center h-[400px] md:h-[500px] overflow-hidden group/main">
+                
+                <!-- Flecha Izquierda -->
+                <button onclick="cambiarImagen(-1)" class="absolute left-4 z-30 bg-white/80 backdrop-blur-sm w-10 h-10 rounded-full shadow-lg flex items-center justify-center opacity-0 group-hover/main:opacity-100 transition-all hover:bg-red-600 hover:text-white">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" /></svg>
+                </button>
+
+                <!-- Imagen Actual -->
+                <img id="main-img" src="{{ p.imagen_url }}" alt="{{ p.nombre }}" class="max-h-full w-auto object-contain transition-all duration-500">
+
+                <!-- Flecha Derecha -->
+                <button onclick="cambiarImagen(1)" class="absolute right-4 z-30 bg-white/80 backdrop-blur-sm w-10 h-10 rounded-full shadow-lg flex items-center justify-center opacity-0 group-hover/main:opacity-100 transition-all hover:bg-red-600 hover:text-white">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" /></svg>
+                </button>
+            </div>
+
+            <!-- MINIATURAS (Thumbnails) -->
+            <div class="flex flex-wrap gap-3 justify-center md:justify-start">
+                <!-- Miniatura Principal -->
+                <div onclick="seleccionarImagen(0, '{{ p.imagen_url }}')" class="thumb-item w-16 h-16 md:w-20 md:h-20 border-2 border-red-600 rounded-xl p-2 cursor-pointer bg-white flex items-center justify-center transition-all">
+                    <img src="{{ p.imagen_url }}" class="max-h-full object-contain">
+                </div>
+
+                <!-- Miniaturas Extras -->
+                {% for img in p.imagenes.all %}
+                <div onclick="seleccionarImagen({{ forloop.counter }}, '{{ img.imagen_url }}')" class="thumb-item w-16 h-16 md:w-20 md:h-20 border-2 border-transparent rounded-xl p-2 cursor-pointer hover:border-gray-200 bg-white flex items-center justify-center transition-all">
+                    <img src="{{ img.imagen_url }}" class="max-h-full object-contain">
+                </div>
+                {% endfor %}
+            </div>
+
+        </div>
+
+        <!-- SCRIPT PARA MANEJAR LA GALERÍA -->
+        <script>
+            const imagenes = [
+                "{{ p.imagen_url }}",
+                {% for img in p.imagenes.all %}"{{ img.imagen_url }}",{% endfor %}
+            ];
+            
+            let indiceActual = 0;
+
+            function actualizarVista() {
+                document.getElementById('main-img').src = imagenes[indiceActual];
+                
+                const thumbs = document.querySelectorAll('.thumb-item');
+                thumbs.forEach((t, i) => {
+                    if(i === indiceActual) {
+                        t.classList.add('border-red-600');
+                        t.classList.remove('border-transparent');
+                    } else {
+                        t.classList.remove('border-red-600');
+                        t.classList.add('border-transparent');
+                    }
+                });
+            }
+
+            function cambiarImagen(direccion) {
+                indiceActual += direccion;
+                if (indiceActual < 0) indiceActual = imagenes.length - 1;
+                if (indiceActual >= imagenes.length) indiceActual = 0;
+                actualizarVista();
+            }
+
+            function seleccionarImagen(index) {
+                indiceActual = index;
+                actualizarVista();
+            }
+        </script>
+
+        <!-- Lado Derecho: Info y Compra -->
+        <div class="flex flex-col pt-4">
+            <span class="text-red-600 font-black text-[10px] uppercase tracking-[0.4em] mb-4 italic">
+                {{ p.tag }} | {{ p.cat }}
+            </span>
+            
+            <h1 class="text-4xl md:text-5xl font-black italic uppercase tracking-tighter text-zinc-900 mb-6 leading-none">
+                {{ p.nombre }}
+            </h1>
+
+            <!-- Disponibilidad -->
+            <div class="mb-6 flex items-center space-x-2">
+                {% if p.stock == 'disponible' %}
+                    <span class="flex h-2 w-2 rounded-full bg-green-500 animate-pulse"></span>
+                    <span class="text-[10px] font-bold text-green-600 uppercase tracking-widest">En Stock - Disponible</span>
+                {% elif p.stock == 'consulta' %}
+                    <span class="flex h-2 w-2 rounded-full bg-blue-500"></span>
+                    <span class="text-[10px] font-bold text-blue-600 uppercase tracking-widest">Bajo Consulta</span>
+                {% else %}
+                    <span class="flex h-2 w-2 rounded-full bg-red-500"></span>
+                    <span class="text-[10px] font-bold text-red-500 uppercase tracking-widest">Agotado</span>
+                {% endif %}
+            </div>
+            
+            <div class="flex items-center space-x-4 mb-8">
+                <span class="text-4xl font-black text-zinc-900 italic">Gs {{ p.precio|floatformat:0|intcomma }}</span>
+                <span class="text-gray-400 text-[10px] uppercase tracking-widest">| IVA Incluido</span>
+            </div>
+
+            <p class="text-gray-600 leading-relaxed mb-10 text-lg border-l-4 border-red-600 pl-6">
+                {{ p.desc }}
+            </p>
+
+<!-- BOTONES  -->
+<div class="flex flex-wrap items-center gap-6 mt-8">
+    
+    {% if p.stock == 'disponible' %}
+        <!-- Botón Negro para productos en stock -->
+        <a href="{% url 'añadir_al_carrito' p.id %}" class="bg-black text-white px-10 py-4 font-black uppercase tracking-widest hover:bg-red-600 transition-all duration-500 shadow-xl flex items-center space-x-3">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" /></svg>
+            <span>Añadir al carrito</span>
+        </a>
+
+    {% elif p.stock == 'consulta' %}
+        <a href="https://wa.me/595981123456?text=Hola! Me interesa el producto: {{ p.nombre }}" target="_blank" class="bg-[#25D366] text-white px-4 py-4 font-black uppercase tracking-widest hover:bg-[#128C7E] transition-all duration-500 shadow-xl flex items-center space-x-3">
+            <!-- Logo de WhatsApp  -->
+            <svg class="w-6 h-6 fill-white" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L0 24l6.335-1.662c1.889 1.025 3.962 1.562 6.073 1.564h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
+            </svg>
+            <span>Consultar por WhatsApp</span>
+        </a>
+    {% endif %}
+
+    <!-- Link Volver siempre presente -->
+    <a href="{% url 'lista_productos' %}" class="text-[10px] font-black text-gray-400 hover:text-black uppercase tracking-[0.3em] transition">
+        ← Volver
+    </a>
+</div>
+
+            <!-- Mini beneficios -->
+            <div class="mt-12 pt-8 border-t border-gray-100 grid grid-cols-2 gap-4">
+                <div class="text-[12px] font-bold uppercase text-gray-400">🛡️ Garantía Oficial</div>
+                <div class="text-[12px] font-bold uppercase text-gray-400">🚚 Envío a todo el país</div>
+            </div>
+        </div>
+    </div>
+
+<!-- SECCIÓN INFERIOR -->
+<div class="mt-12 border-t border-gray-100 pt-10 max-w-5xl mx-auto">
+    
+    <!-- Descripción del Producto -->
+    <div class="mb-10">
+        <h2 class="text-xl font-black italic uppercase tracking-tighter mb-4 text-zinc-900">Descripción del producto</h2>
+        <div class="bg-gray-50 rounded-2xl p-6 md:p-6 border border-gray-100 h-auto">
+            <p class="text-gray-600 leading-relaxed text-base">
+                {{ p.desc }} 
+                <br><br>
+                Este producto de la marca <span class="font-bold text-black italic">{{ p.marca.nombre }}</span> cumple con estándares internacionales de calidad y rendimiento.
+            </p>
+        </div>
+    </div>
+
+    <!-- Tabla de Especificaciones -->
+    <div>
+        <h2 class="text-xl font-black italic uppercase tracking-tighter mb-4 text-zinc-900">Especificaciones</h2>
+        
+        <div class="space-y-2 max-w-5xl">
+            <!-- Fila Marca -->
+            <div class="flex items-center justify-between bg-white border border-gray-200 rounded-xl px-6 py-3 shadow-sm hover:border-zinc-400 transition">
+                <span class="text-[11px] font-black uppercase tracking-widest text-gray-400">Marca</span>
+                <span class="text-sm font-bold text-zinc-800 italic">{{ p.marca.nombre }}</span>
+            </div>
+
+            <!-- Fila Categoría -->
+            <div class="flex items-center justify-between bg-white border border-gray-200 rounded-xl px-6 py-3 shadow-sm hover:border-zinc-400 transition">
+                <span class="text-[11px] font-black uppercase tracking-widest text-gray-400">Categoría</span>
+                <span class="text-sm font-bold text-zinc-800 italic">{{ p.categoria.nombre }}</span>
+            </div>
+
+            <!-- Fila Estado -->
+            <div class="flex items-center justify-between bg-white border border-gray-200 rounded-xl px-6 py-3 shadow-sm hover:border-zinc-400 transition">
+                <span class="text-[11px] font-black uppercase tracking-widest text-gray-400">Estado</span>
+                <span class="text-sm font-bold text-red-600 italic uppercase">{{ p.tag }}</span>
+            </div>
+
+            <!-- Fila Código -->
+            <div class="flex items-center justify-between bg-white border border-gray-200 rounded-xl px-6 py-3 shadow-sm hover:border-zinc-400 transition">
+                <span class="text-[11px] font-black uppercase tracking-widest text-gray-400">Referencia</span>
+                <span class="text-sm font-bold text-zinc-800">#TS-00{{ p.id }}</span>
+            </div>
+
+            <!-- Fila Stock -->
+            <div class="flex items-center justify-between bg-white border border-gray-200 rounded-xl px-6 py-3 shadow-sm hover:border-zinc-400 transition">
+                <span class="text-[11px] font-black uppercase tracking-widest text-gray-400">Stock</span>
+                <span class="text-sm font-bold uppercase {% if p.stock == 'disponible' %}text-green-600{% else %}text-blue-600{% endif %}">
+                    {{ p.stock }}
+                </span>
+            </div>
+        </div>
+    </div>
+
+</div>
+{% endblock %}

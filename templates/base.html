@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;700;900&display=swap" rel="stylesheet">
+<style>
+    body { font-family: 'Inter', sans-serif; scroll-behavior: smooth; }
+    [id] { scroll-margin-top: 100px; }
+
+    /* OCULTAR BARRAS DE SCROLL PERO PERMITIR EL MOVIMIENTO */
+    .no-scrollbar::-webkit-scrollbar { display: none; }
+    .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+    /* ZOOM LENTO PARA LAS FOTOS */
+    @keyframes slow-zoom {
+        0%, 100% { transform: scale(1); }
+        50% { transform: scale(1.1); }
+    }
+    .animate-zoom { animation: slow-zoom 20s infinite ease-in-out; }
+
+    /* MARCAS INFINITAS */
+    @keyframes marquee {
+        from { transform: translateX(0); }
+        to { transform: translateX(-50%); }
+    }
+    .animate-marquee { display: flex; width: max-content; animation: marquee 30s linear infinite; }
+</style>
+
+    <title>Tech Shop | Tecnologías de alta calidad</title>
+</head>
+<body class="bg-white overflow-x-hidden">
+
+    <!-- CHECKBOX OCULTO (Controla el Menú Lateral) -->
+    <input type="checkbox" id="side-menu" class="hidden peer">
+
+<!-- MENÚ LATERAL (Sidebar Multi-Nivel Corregido) -->
+<aside class="fixed top-0 left-0 h-full w-80 bg-white z-[70] shadow-2xl transform -translate-x-full peer-checked:translate-x-0 transition-transform duration-500 ease-in-out flex flex-col overflow-hidden">
+    
+    <!-- CABECERA FIJA DEL MENÚ -->
+    <div class="p-5 border-b-2 border-red-600 flex justify-between items-center bg-white z-50">
+        <span class="font-black uppercase tracking-widest text-xs italic">Menú</span>
+        <label for="side-menu" class="cursor-pointer text-gray-400 hover:text-red-600 transition text-3xl leading-none">&times;</label>
+    </div>
+
+    <!-- CONTENEDOR PRINCIPAL DE PANELES -->
+    <div class="relative flex-grow overflow-hidden">
+        
+        <!-- PANEL 1: LISTA PRINCIPAL -->
+        <nav class="h-full w-full bg-white overflow-y-auto no-scrollbar">
+            <div class="flex flex-col">
+                <a href="{% url 'home' %}" class="p-5 border-b border-gray-50 hover:bg-gray-50 transition font-bold text-[11px] uppercase tracking-widest flex items-center">
+                    <span class="mr-4 text-lg">🏠</span> Inicio
+                </a>
+                <a href="{% url 'lista_productos' %}" class="p-5 border-b border-gray-50 hover:bg-gray-50 transition font-bold text-[11px] uppercase tracking-widest text-red-600 flex items-center">
+                    <span class="mr-4 text-lg">🛒</span> Todos los Productos
+                </a>
+
+                <div class="bg-gray-50 px-5 py-3 text-[9px] font-black text-gray-400 uppercase tracking-[0.3em]">Categorías</div>
+
+                <!-- BUCLE DE CATEGORÍAS (Actualizado para Base de Datos) -->
+                {% for item in menu_lateral %}
+                <div class="border-b border-gray-50">
+                    <input type="checkbox" id="sub-{{ item.slug }}" class="hidden peer">
+                    
+                    <label for="sub-{{ item.slug }}" class="flex items-center justify-between p-5 cursor-pointer hover:bg-gray-50 transition group">
+                        <div class="flex items-center space-x-4">
+                            <!-- Cambio item.icon por item.icono -->
+                            <span class="text-xl">{{ item.icono }}</span>
+                            <!-- Cambio item.nom por item.nombre -->
+                            <span class="font-bold text-zinc-800 text-[11px] uppercase tracking-wider group-hover:text-red-600 transition">{{ item.nombre }}</span>
+                        </div>
+                        <svg class="w-4 h-4 text-gray-300 group-hover:text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" /></svg>
+                    </label>
+
+                    <!-- PANEL DEL SUB-MENÚ -->
+                    <div class="absolute inset-0 w-full h-full bg-white z-40 transform translate-x-full peer-checked:translate-x-0 transition-transform duration-300 flex flex-col">
+                        <div class="p-5 border-b border-gray-100 flex items-center bg-gray-50">
+                            <label for="sub-{{ item.slug }}" class="p-2 -ml-2 cursor-pointer hover:text-red-600 transition flex items-center space-x-2">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" /></svg>
+                                <span class="font-black uppercase text-[10px] tracking-widest">Atrás</span>
+                            </label>
+                            <span class="flex-grow text-center font-black uppercase text-xs tracking-tighter text-zinc-900 pr-10">{{ item.nombre }}</span>
+                        </div>
+                        
+                        <div class="flex-grow overflow-y-auto no-scrollbar">
+                            <a href="{% url 'categoria_productos' item.slug %}" class="p-6 border-b border-gray-50 text-[11px] font-black text-red-600 uppercase hover:bg-red-50 block tracking-widest">
+                                Ver todo {{ item.nombre }}
+                            </a>
+                            {% for sub in item.subcategorias.all %}
+                            <a href="{% url 'lista_productos' %}?sub={{ sub.nombre }}" class="p-6 border-b border-gray-50 text-[11px] font-bold text-gray-600 uppercase hover:text-red-600 hover:bg-gray-50 transition block tracking-wider">
+                                {{ sub.nombre }}
+                            </a>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </nav>
+    </div>
+
+    <!-- FOOTER DEL MENÚ -->
+    <div class="p-6 bg-zinc-900 text-white z-50">
+        <div class="flex justify-around opacity-50">
+            <span class="text-[8px] font-bold tracking-widest uppercase italic">Tech Shop Pro</span>
+        </div>
+    </div>
+</aside>
+
+    <!-- OVERLAY (Oscurece el fondo al abrir el menú) -->
+    <label for="side-menu" class="fixed inset-0 bg-black/60 z-[55] hidden peer-checked:block transition-opacity"></label>
+
+    <!-- NAVBAR -->
+    <nav class="sticky top-0 z-50 bg-white/90 backdrop-blur-md border-b border-gray-100">
+        <div class="container mx-auto px-6 py-4 flex justify-between items-center">
+            
+            <div class="flex items-center space-x-4">
+                <label for="side-menu" class="cursor-pointer hover:text-red-600 transition">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-7 w-7" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+                    </svg>
+                </label>
+                <a href="{% url 'home' %}" class="text-2xl font-black tracking-tighter text-black italic">TECH<span class="text-red-600">SHOP</span></a>
+            </div>
+
+            <div class="hidden md:flex space-x-8 text-[11px] font-black uppercase tracking-[0.2em] text-gray-700">
+                <a href="/#categorias" class="hover:text-red-600 transition">Sectores</a>
+                <a href="{% url 'lista_productos' %}" 
+                   class="hover:text-red-600 transition {% if 'productos' in request.path %}text-red-600 font-black{% else %}text-gray-700{% endif %}">Catálogo</a>
+                <a href="/#marcas" class="hover:text-red-600 transition">Marcas</a>
+                <a href="/#productos" class="hover:text-red-600 transition">Destacados</a>
+            </div>
+
+            <div class="flex items-center space-x-5">
+                <form action="{% url 'lista_productos' %}" method="GET" class="group flex items-center bg-gray-50 border border-transparent hover:border-gray-200 rounded-full px-4 py-1.5 transition-all duration-500">
+                    <input type="text" 
+                           name="q" 
+                           placeholder="¿Qué buscas?" 
+                           class="w-0 group-hover:w-32 md:group-hover:w-48 transition-all duration-500 bg-transparent outline-none text-[10px] uppercase font-bold tracking-widest text-gray-500 placeholder-gray-300">
+                    
+                    <button type="submit" class="text-gray-700 group-hover:text-red-600 transition-transform duration-300 hover:scale-110">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                        </svg>
+                    </button>
+                </form>    
+
+                <a href="{% url 'ver_carrito' %}" class="relative group bg-black text-white px-5 py-2.5 text-[11px] font-black uppercase tracking-tighter hover:bg-red-600 transition-all duration-500 flex items-center shadow-xl">
+                    <svg class="w-5 h-5 mr-3 fill-white" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M7 18c-1.1 0-1.99.9-1.99 2S5.9 22 7 22s2-.9 2-2-.9-2-2-2zM1 2v2h2l3.6 7.59-1.35 2.45c-.16.28-.25.61-.25.96 0 1.1.9 2 2 2h12v-2H7.42c-.14 0-.25-.11-.25-.25l.03-.12.9-1.63h7.45c.75 0 1.41-.41 1.75-1.03l3.58-6.49c.08-.14.12-.31.12-.48 0-.55-.45-1-1-1H5.21l-.94-2H1zm16 16c-1.1 0-1.99.9-1.99 2s.89 2 1.99 2 2-.9 2-2-.9-2-2-2z"/>
+                    </svg>
+                    <span class="border-l border-white/20 pl-3">({{ request.session.carrito|length|default:0 }})</span>
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <main>
+        {% block content %}{% endblock %}
+    </main>
+
+    <footer class="bg-zinc-900 text-white py-16 mt-20">
+        <div class="container mx-auto px-6 grid grid-cols-1 md:grid-cols-4 gap-12 text-center md:text-left">
+            <div class="col-span-2">
+                <h2 class="text-3xl font-black italic mb-6">TECH<span class="text-red-600">SHOP</span></h2>
+                <p class="text-gray-400 max-sm mx-auto md:mx-0">La mejor tecnología en hardware de alto rendimiento.</p>
+            </div>
+            <div>
+                <h4 class="font-bold mb-4 uppercase text-sm tracking-widest">Navegación</h4>
+                <ul class="text-gray-400 space-y-2 text-sm">
+                    <li><a href="{% url 'lista_productos' %}" class="hover:text-white transition">Catálogo Completo</a></li>
+                    <li><a href="#" class="hover:text-white transition">Políticas</a></li>
+                </ul>
+            </div>
+            <div>
+                <h4 class="font-bold mb-4 uppercase text-sm tracking-widest">Contacto</h4>
+                <p class="text-gray-400 text-sm">info@techshop.com</p>
+            </div>
+        </div>
+    </footer>
+</body>
+</html>

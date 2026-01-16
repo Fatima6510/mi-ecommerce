@@ -1,0 +1,82 @@
+{% extends 'base.html' %}
+{% load humanize %}
+{% block content %}
+<div class="container mx-auto px-6 py-16">
+    <h1 class="text-4xl font-black italic uppercase tracking-tighter mb-10">Tu Carrito</h1>
+
+    {% if carrito %}
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-12">
+        
+        <!-- Lista de productos -->
+        <div class="lg:col-span-2 space-y-6">
+            {% for item in carrito %}
+            <div class="flex items-center bg-white border border-gray-100 p-6 rounded-2xl shadow-sm relative group">
+                
+                <!-- BOTÓN ELIMINAR -->
+                <a href="{% url 'eliminar_del_carrito' item.info.id %}" class="absolute top-4 right-4 text-gray-300 hover:text-red-600 transition text-2xl font-bold p-2">&times;</a>
+                
+                <img src="{{ item.info.imagen_url }}" class="w-24 h-24 object-contain mr-8">
+                
+                <div class="flex-grow">
+                    <span class="text-[10px] font-bold text-red-600 uppercase tracking-widest">{{ item.info.categoria.nombre }}</span>
+                    <h3 class="text-lg font-black uppercase italic tracking-tighter">{{ item.info.nombre }}</h3>
+                    
+                    <div class="flex items-center space-x-4 mt-4">
+                        <a href="{% url 'restar_del_carrito' item.info.id %}" class="w-8 h-8 flex items-center justify-center border border-gray-200 rounded-full hover:bg-black hover:text-white transition font-bold">-</a>
+                        <span class="font-black text-lg w-4 text-center">{{ item.cantidad }}</span>
+                        <a href="{% url 'añadir_al_carrito' item.info.id %}" class="w-8 h-8 flex items-center justify-center border border-gray-200 rounded-full hover:bg-red-600 hover:text-white transition font-bold">+</a>
+                    </div>
+                </div>
+
+                <div class="text-right pr-6">
+                    <p class="text-[9px] font-bold text-gray-400 uppercase tracking-widest mb-1">Subtotal</p>
+                    <p class="text-xl font-black text-zinc-900 italic">Gs {{ item.subtotal|floatformat:0|intcomma }}</p></p>
+                </div>
+            </div>
+            {% endfor %}
+            
+            <a href="{% url 'vaciar_carrito' %}" class="inline-block text-xs font-bold text-gray-400 hover:text-red-600 uppercase tracking-widest transition">
+                🗑️ Vaciar todo el carrito
+            </a>
+        </div>
+
+        <!-- Resumen de compra -->
+        <div class="bg-zinc-900 text-white p-10 rounded-3xl h-fit sticky top-28 shadow-2xl">
+            <h2 class="text-xl font-black uppercase italic mb-8 border-b border-zinc-700 pb-4">Resumen</h2>
+            
+            <div class="space-y-4 mb-8">
+                <div class="flex justify-between text-sm text-gray-400 font-bold uppercase tracking-widest">
+                    <span>Subtotal</span>
+                    <span>$ {{ total|floatformat:0|intcomma }}</span>
+                </div>
+                <div class="flex justify-between text-sm text-gray-400 font-bold uppercase tracking-widest">
+                    <span>Envío</span>
+                    <span class="text-green-500 italic font-black text-[10px]">GRATIS</span>
+                </div>
+            </div>
+
+            <div class="flex justify-between text-3xl font-black italic border-t border-zinc-700 pt-6 mb-10">
+                <span>TOTAL</span>
+                <span class="text-red-600">Gs {{ total|floatformat:0|intcomma }}</span>
+            </div>
+
+            <button class="w-full bg-red-600 py-4 font-black uppercase tracking-widest hover:bg-white hover:text-black transition duration-500 shadow-lg">
+                Finalizar Compra
+            </button>
+            <p class="text-[10px] text-gray-500 text-center mt-6 uppercase tracking-widest font-bold">
+                Seguridad garantizada por Tech Shop
+            </p>
+        </div>
+
+    </div>
+    {% else %}
+    <!-- Carrito Vacío -->
+    <div class="text-center py-24 bg-gray-50 rounded-3xl border-2 border-dashed border-gray-200">
+        <p class="text-gray-400 font-bold uppercase tracking-[0.4em] mb-8 italic">Tu carrito está vacío</p>
+        <a href="{% url 'lista_productos' %}" class="bg-black text-white px-12 py-4 font-black uppercase tracking-widest hover:bg-red-600 transition shadow-xl">
+            Volver a la tienda
+        </a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
