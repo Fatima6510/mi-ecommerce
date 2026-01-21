@@ -2,90 +2,118 @@
 {% load humanize %}
 
 {% block content %}
-<!-- SECCIÓN 1: SLIDER HERO -->
-<section class="relative h-[60vh] md:h-[85vh] w-full overflow-hidden bg-black">
-    <div id="hero-slider" class="flex h-full overflow-x-auto snap-x snap-mandatory no-scrollbar scroll-smooth">
+<!-- SECCIÓN 1: HERO PROFESIONAL (Auto + Manual) -->
+<section class="hero-container h-[60vh] md:h-[85vh] bg-black group/hero">
+    <div id="hero-wrapper" class="hero-wrapper h-full">
         {% for b in banners %}
-        <div class="min-w-full h-full relative snap-center flex-shrink-0 overflow-hidden">
-            <img src="{{ b.img }}" class="w-full h-full object-cover opacity-60 animate-zoom">
-            <div class="absolute inset-0 flex flex-col items-center justify-center text-white p-4">
-                <h1 class="text-5xl md:text-8xl font-black italic uppercase tracking-tighter text-center leading-none">
-                    {{ b.blanco }} <span class="text-red-600">{{ b.rojo }}</span>
-                </h1>
-                <a href="#productos" class="mt-8 bg-red-600 px-10 py-4 font-bold uppercase tracking-widest hover:bg-white hover:text-black transition duration-500 shadow-2xl">Comprar Ahora</a>
-            </div>
+        <div class="hero-slide h-full relative overflow-hidden">
+            <a href="{{ b.link_url }}" class="block h-full w-full">
+                {% if b.imagen %}
+                    <img src="{{ b.imagen.url }}" class="w-full h-full object-cover opacity-60 animate-zoom">
+                {% endif %}
+                <div class="absolute inset-0 flex flex-col items-center justify-center text-white p-4">
+                    <h1 class="text-5xl md:text-[110px] font-black italic uppercase tracking-tighter text-center leading-[0.85]">
+                        <span class="block">{{ b.texto_blanco }}</span>
+                        <span class="text-red-600 block">{{ b.texto_rojo }}</span>
+                    </h1>
+                </div>
+            </a>
         </div>
         {% endfor %}
     </div>
-    <!-- FLECHAS MANUALES HERO -->
-    <button onclick="document.getElementById('hero-slider').scrollBy({left: -window.innerWidth, behavior: 'smooth'})" class="absolute left-4 top-1/2 -translate-y-1/2 z-30 text-white/30 hover:text-white transition text-4xl md:block hidden">❮</button>
-    <button onclick="document.getElementById('hero-slider').scrollBy({left: window.innerWidth, behavior: 'smooth'})" class="absolute right-4 top-1/2 -translate-y-1/2 z-30 text-white/30 hover:text-white transition text-4xl md:block hidden">❯</button>
+
+    <!-- FLECHAS -->
+    <button onclick="navManual(-1)" class="absolute left-4 top-1/2 -translate-y-1/2 z-30 bg-white/10 backdrop-blur-md w-12 h-12 rounded-full flex items-center justify-center opacity-0 group-hover/hero:opacity-100 transition-all hover:bg-red-600 text-white">❮</button>
+    <button onclick="navManual(1)" class="absolute right-4 top-1/2 -translate-y-1/2 z-30 bg-white/10 backdrop-blur-md w-12 h-12 rounded-full flex items-center justify-center opacity-0 group-hover/hero:opacity-100 transition-all hover:bg-red-600 text-white">❯</button>
 </section>
 
-<!-- SECCIÓN 2: Sectores -->
+<script>
+    const wrapper = document.getElementById('hero-wrapper');
+    const slides = document.querySelectorAll('.hero-slide');
+    const totalSlides = slides.length; 
+    let index = 0;
+    let autoPlayInterval;
+
+    function actualizarPosicion() {
+        wrapper.style.transform = `translateX(-${index * 100}%)`;
+    }
+
+    function moverSiguiente() {
+        index++;
+        wrapper.style.transition = "transform 0.7s cubic-bezier(0.4, 0, 0.2, 1)";
+        actualizarPosicion();
+
+        // Si llegamos al clon (el último elemento de la lista)
+        if (index === totalSlides - 1) {
+            setTimeout(() => {
+                wrapper.style.transition = "none"; // Se apaga la animación
+                index = 0; // Volvemos al inicio real
+                actualizarPosicion();
+            }, 700); // Esperamos a que termine la animación
+        }
+    }
+
+    function navManual(direccion) {
+        clearInterval(autoPlayInterval); // Se detiene el auto-play para que no choque
+        index += direccion;
+
+        if (index < 0) index = totalSlides - 2;
+        if (index >= totalSlides - 1) index = 0;
+
+        wrapper.style.transition = "transform 0.7s cubic-bezier(0.4, 0, 0.2, 1)";
+        actualizarPosicion();
+        iniciarAutoPlay(); // Se reinicia el reloj
+    }
+
+    function iniciarAutoPlay() {
+        autoPlayInterval = setInterval(moverSiguiente, 5000);
+    }
+
+    iniciarAutoPlay();
+</script>
+
+<!-- SECCIÓN 2: CATEGORÍAS (Sectores) -->
 <section id="categorias" class="py-12 container mx-auto px-6 relative group/cat">
-    <div class="text-center mb-8">
-        <h2 class="text-[11.5px] font-black tracking-[0.4em] text-gray-400 uppercase italic">Sectores populares</h2>
-    </div>
-
-    <!-- FLECHAS PARA CATEGORÍAS -->
-    <button onclick="document.getElementById('slider-categorias').scrollBy({left: -200, behavior: 'smooth'})" 
-            class="absolute left-0 top-1/2 z-30 bg-white/90 w-8 h-8 rounded-full shadow-md flex items-center justify-center opacity-0 group-hover/cat:opacity-100 transition-all hover:bg-red-600 hover:text-white">❮</button>
-    
-    <button onclick="document.getElementById('slider-categorias').scrollBy({left: 200, behavior: 'smooth'})" 
-            class="absolute right-0 top-1/2 z-30 bg-white/90 w-8 h-8 rounded-full shadow-md flex items-center justify-center opacity-0 group-hover/cat:opacity-100 transition-all hover:bg-red-600 hover:text-white">❯</button>
-
-    <!-- CONTENEDOR SLIDER CATEGORÍAS -->
-    <div id="slider-categorias" class="flex overflow-x-auto gap-8 no-scrollbar scroll-smooth snap-x snap-mandatory px-4">
+    <div class="text-center mb-8"><h2 class="text-[11.5px] font-black tracking-[0.4em] text-gray-400 uppercase italic">Sectores populares</h2></div>
+    <div class="flex overflow-x-auto gap-8 no-scrollbar scroll-smooth snap-x snap-mandatory px-4 justify-start md:justify-center">
         {% for cat in categorias %}
         <a href="{% url 'categoria_productos' cat.slug %}" class="flex flex-col items-center flex-shrink-0 snap-center group cursor-pointer">
-            <div class="w-24 h-24 md:w-32 md:h-32 rounded-full overflow-hidden border border-gray-100 group-hover:border-red-600 transition-all duration-500 shadow-sm group-hover:shadow-lg">
-                {% if cat.imagen_url %}
-                    <img src="{{ cat.imagen_url }}" class="w-full h-full object-cover group-hover:scale-110 transition duration-700">
-                {% else %}
-                    <div class="w-full h-full flex items-center justify-center bg-gray-50 text-3xl">{{ cat.icono }}</div>
-                {% endif %}
+            <div class="w-24 h-24 md:w-32 md:h-32 rounded-full overflow-hidden border border-gray-100 group-hover:border-red-600 transition-all duration-500 shadow-sm group-hover:shadow-lg bg-zinc-50">
+                {% if cat.imagen %}<img src="{{ cat.imagen.url }}" class="w-full h-full object-cover group-hover:scale-110 transition duration-700">
+                {% else %}<div class="w-full h-full flex items-center justify-center text-3xl">{{ cat.icono }}</div>{% endif %}
             </div>
-            <span class="mt-4 font-black uppercase text-[10px] tracking-widest text-gray-500 group-hover:text-red-600 transition">{{ cat.nombre }}</span>
+            <span class="mt-4 font-black uppercase text-[10px] text-gray-500 group-hover:text-red-600 transition">{{ cat.nombre }}</span>
         </a>
         {% endfor %}
     </div>
 </section>
 
-<!-- SECCIÓN 3: PRODUCTOS DESTACADOS-->
+<!-- SECCIÓN 3: PRODUCTOS DESTACADOS -->
 <section id="productos" class="py-8 bg-gray-50 overflow-hidden">
     <div class="container mx-auto px-6 relative group/slider">
-        
         <div class="flex items-center justify-between mb-8 border-b border-zinc-200 pb-4">
             <div class="flex items-center space-x-4">
                 <h2 class="text-2xl font-black italic uppercase tracking-tighter text-zinc-900 leading-none">Destacados</h2>
                 <div class="h-1 w-12 bg-red-600"></div>
             </div>
-            <a href="{% url 'lista_productos' %}" class="text-[10px] font-black uppercase text-red-600 hover:text-black transition italic tracking-widest border-b-2 border-red-600 pb-1">
-                VER CATÁLOGO
-            </a>
+            <a href="{% url 'lista_productos' %}" class="text-[10px] font-black uppercase text-red-600 hover:text-black transition italic border-b-2 border-red-600 pb-1">VER CATÁLOGO</a>
         </div>
 
-        <button onclick="document.getElementById('slider-prods').scrollBy({left: -350, behavior: 'smooth'})" class="absolute left-2 top-[45%] z-30 bg-white/90 w-10 h-10 rounded-full shadow-lg flex items-center justify-center opacity-0 group-hover/slider:opacity-100 transition-all hover:bg-red-600 hover:text-white">❮</button>
-        <button onclick="document.getElementById('slider-prods').scrollBy({left: 350, behavior: 'smooth'})" class="absolute right-2 top-[45%] z-30 bg-white/90 w-10 h-10 rounded-full shadow-lg flex items-center justify-center opacity-0 group-hover/slider:opacity-100 transition-all hover:bg-red-600 hover:text-white">❯</button>
+        <button onclick="document.getElementById('slider-prods').scrollBy({left: -350, behavior: 'smooth'})" class="absolute left-2 top-[45%] z-30 bg-white/90 w-10 h-10 rounded-full shadow-lg flex items-center justify-center opacity-0 group-hover/slider:opacity-100 transition-all">❮</button>
+        <button onclick="document.getElementById('slider-prods').scrollBy({left: 350, behavior: 'smooth'})" class="absolute right-2 top-[45%] z-30 bg-white/90 w-10 h-10 rounded-full shadow-lg flex items-center justify-center opacity-0 group-hover/slider:opacity-100 transition-all">❯</button>
 
-        <div id="slider-prods" class="flex overflow-x-auto gap-5 pb-6 snap-x snap-mandatory scroll-smooth custom-scroll">
+        <div id="slider-prods" class="flex overflow-x-auto gap-5 pb-6 snap-x snap-mandatory scroll-smooth custom-scroll no-scrollbar">
             {% for p in destacados %}
             <div class="min-w-[80%] md:min-w-[20%] snap-start">
                 <div class="bg-white group/item relative rounded-xl overflow-hidden border border-gray-100 transition-all duration-500 hover:shadow-xl">
                     {% if p.tag %}<span class="absolute top-3 left-3 z-20 bg-red-600 text-white text-[8.5px] font-black px-2 py-1 rounded-sm uppercase italic shadow-lg">{{ p.tag }}</span>{% endif %}
-                    
                     <a href="{% url 'detalle_producto' p.id %}" class="relative block h-48 md:h-56 p-6 bg-white overflow-hidden">
-                        <img src="{{ p.imagen_url }}" class="w-full h-full object-contain transform group-hover/item:scale-110 transition duration-700">
-                        <div class="absolute inset-x-0 bottom-0 p-3 translate-y-full group-hover/item:translate-y-0 transition-transform duration-500 bg-black/90 flex items-center justify-center">
-                            <span class="text-white text-[9px] font-bold uppercase tracking-widest">Ver Detalles</span>
-                        </div>
+                        {% if p.imagen %}<img src="{{ p.imagen.url }}" class="w-full h-full object-contain group-hover/item:scale-110 transition duration-700">
+                        {% else %}<img src="https://via.placeholder.com/300x300?text=Sin+Imagen" class="w-full h-full object-contain opacity-20">{% endif %}
+                        <div class="absolute inset-x-0 bottom-0 p-3 translate-y-full group-hover/item:translate-y-0 transition-transform duration-500 bg-black/90 flex items-center justify-center"><span class="text-white text-[9px] font-bold uppercase tracking-widest">Ver Detalles</span></div>
                     </a>
-
                     <div class="p-4 text-center border-t border-zinc-200 bg-white">
-                        <a href="{% url 'detalle_producto' p.id %}">
-                            <h3 class="text-[11px] font-bold uppercase tracking-tight text-gray-500 truncate mb-1">{{ p.nombre }}</h3>
-                        </a>
+                        <a href="{% url 'detalle_producto' p.id %}"><h3 class="text-[11px] font-bold uppercase tracking-tight text-gray-500 truncate mb-1">{{ p.nombre }}</h3></a>
                         <p class="text-red-600 font-black text-xl italic leading-none">Gs {{ p.precio|floatformat:0|intcomma }}</p>
                         <a href="{% url 'añadir_al_carrito' p.id %}" class="mt-3 block w-full bg-zinc-100 py-2 text-[8px] font-black uppercase hover:bg-red-600 hover:text-white transition tracking-widest">Añadir al carrito</a>
                     </div>
@@ -96,66 +124,45 @@
     </div>
 </section>
 
+<!-- SECCIÓN: BANNER MUNDO GAMING -->
+<section class="py-10">
+    <div class="container mx-auto px-6"><div class="relative h-[450px] rounded-[40px] overflow-hidden group">
+        <img src="https://images.unsplash.com/photo-1542751371-adc38448a05e?w=1600" class="w-full h-full object-cover transition duration-1000 group-hover:scale-110">
+        <div class="absolute inset-0 bg-gradient-to-r from-black via-black/40 to-transparent"></div>
+        <div class="absolute inset-0 flex flex-col justify-center px-12 md:px-20 text-white">
+            <span class="text-red-600 font-black uppercase tracking-[0.4em] text-[10px] mb-4 italic">Equipamiento Pro</span>
+            <h2 class="text-5xl md:text-7xl font-black italic uppercase tracking-tighter mb-6 leading-none">MUNDO <br> <span class="text-red-600">GAMING</span></h2>
+            <a href="{% url 'lista_productos' %}?q=gaming" class="bg-white text-black px-12 py-4 text-[10px] font-black uppercase tracking-widest hover:bg-red-600 hover:text-white transition w-fit shadow-2xl">Explorar Colección</a>
+        </div>
+    </div></div>
+</section>
+
+<!-- SECCIÓN: BENEFICIOS -->
+<section class="py-20 bg-zinc-50 border-y border-gray-100">
+    <div class="container mx-auto px-6"><div class="grid grid-cols-1 md:grid-cols-3 gap-16 text-center">
+        <div class="flex flex-col items-center"><div class="w-16 h-16 bg-white shadow-xl rounded-2xl flex items-center justify-center mb-6"><span class="text-3xl">🚚</span></div><h4 class="font-black uppercase italic text-sm tracking-tighter">Envío Nacional</h4></div>
+        <div class="flex flex-col items-center"><div class="w-16 h-16 bg-white shadow-xl rounded-2xl flex items-center justify-center mb-6"><span class="text-3xl">🛡️</span></div><h4 class="font-black uppercase italic text-sm tracking-tighter">Garantía Oficial</h4></div>
+        <div class="flex flex-col items-center"><div class="w-16 h-16 bg-white shadow-xl rounded-2xl flex items-center justify-center mb-6"><span class="text-3xl">💳</span></div><h4 class="font-black uppercase italic text-sm tracking-tighter">Pagos Seguros</h4></div>
+    </div></div>
+</section>
+
 <!-- SECCIÓN 4: MARCAS -->
 <section id="marcas" class="py-16 bg-white border-t border-zinc-100">
     <div class="container mx-auto px-6 max-w-6xl relative group/marcas">
-        
         <div class="flex flex-col items-center mb-10 text-center">
             <h2 class="text-[10px] font-black tracking-[0.6em] uppercase text-gray-400">Partners Oficiales</h2>
             <div class="h-[2px] w-12 bg-red-600 mt-4"></div>
         </div>
-
-        <!-- FLECHAS MÁS VISIBLES -->
-        <button onclick="document.getElementById('slider-marcas').scrollBy({left: -300, behavior: 'smooth'})" 
-                class="absolute left-0 top-1/2 -translate-y-1/2 z-40 bg-white shadow-xl border border-zinc-100 w-12 h-12 rounded-full flex items-center justify-center opacity-0 group-hover/marcas:opacity-100 transition-all duration-300 hover:bg-red-600 hover:text-white">
-            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" /></svg>
-        </button>
-
-        <button onclick="document.getElementById('slider-marcas').scrollBy({left: 300, behavior: 'smooth'})" 
-                class="absolute right-0 top-1/2 -translate-y-1/2 z-40 bg-white shadow-xl border border-zinc-100 w-12 h-12 rounded-full flex items-center justify-center opacity-0 group-hover/marcas:opacity-100 transition-all duration-300 hover:bg-red-600 hover:text-white">
-            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" /></svg>
-        </button>
-
-        <!-- CONTENEDOR DEL SLIDER CENTRADO -->
-        <div id="slider-marcas" class="flex overflow-x-auto gap-16 items-center justify-start md:justify-center snap-x snap-mandatory scroll-smooth no-scrollbar py-6">
+        <button onclick="document.getElementById('slider-marcas').scrollBy({left: -300, behavior: 'smooth'})" class="absolute left-0 top-1/2 -translate-y-1/2 z-30 bg-white shadow-md border border-zinc-100 w-10 h-10 rounded-full flex items-center justify-center opacity-0 group-hover/marcas:opacity-100 transition-all">❮</button>
+        <button onclick="document.getElementById('slider-marcas').scrollBy({left: 300, behavior: 'smooth'})" class="absolute right-0 top-1/2 -translate-y-1/2 z-30 bg-white shadow-md border border-zinc-100 w-10 h-10 rounded-full flex items-center justify-center opacity-0 group-hover/marcas:opacity-100 transition-all">❯</button>
+        <div id="slider-marcas" class="flex overflow-x-auto gap-12 items-center justify-center no-scrollbar py-4 px-10">
             {% for m in marcas %}
-            <div class="flex-shrink-0 snap-center">
-                <a href="{% url 'lista_productos' %}?marca={{ m.nombre }}">
-                    <img src="{{ m.imagen_url }}" alt="{{ m.nombre }}" 
-                         class="h-8 md:h-10 w-auto object-contain grayscale opacity-40 hover:grayscale-0 hover:opacity-100 transition-all duration-700">
-                </a>
-            </div>
+            <a href="{% url 'lista_productos' %}?marca={{ m.nombre }}" class="flex-shrink-0">
+                {% if m.imagen %}<img src="{{ m.imagen.url }}" class="h-8 md:h-10 w-auto object-contain grayscale opacity-40 hover:grayscale-0 transition duration-500">{% endif %}
+            </a>
             {% endfor %}
         </div>
     </div>
 </section>
 
-<!-- Auto-play Hero Marcas -->
-<script>
-    setInterval(() => {
-        const s = document.getElementById('hero-slider');
-        if (s) {
-            if (s.scrollLeft + s.offsetWidth >= s.scrollWidth - 10) s.scrollTo({left: 0, behavior: 'smooth'});
-            else s.scrollBy({left: window.innerWidth, behavior: 'smooth'});
-        }
-    }, 5000);
-</script>
-<!-- Sectores populares-->
-<script>
-    function autoScroll(sliderId, step) {
-        const slider = document.getElementById(sliderId);
-        if (slider) {
-            if (slider.scrollLeft + slider.offsetWidth >= slider.scrollWidth - 10) {
-                slider.scrollTo({left: 0, behavior: 'smooth'});
-            } else {
-                slider.scrollBy({left: step, behavior: 'smooth'});
-            }
-        }
-    }
-
-    // Se mueven cada 5 segundos
-    setInterval(() => autoScroll('hero-slider', window.innerWidth), 5000); // Hero
-    setInterval(() => autoScroll('slider-categorias', 250), 6000);        // Categorías
-    setInterval(() => autoScroll('slider-prods', 350), 7000);             // Productos destacados
-</script>
 {% endblock %}

@@ -14,8 +14,13 @@
                 
                 <!-- BOTÓN ELIMINAR -->
                 <a href="{% url 'eliminar_del_carrito' item.info.id %}" class="absolute top-4 right-4 text-gray-300 hover:text-red-600 transition text-2xl font-bold p-2">&times;</a>
-                
-                <img src="{{ item.info.imagen_url }}" class="w-24 h-24 object-contain mr-8">
+                <div class="w-24 h-24 flex-shrink-0 flex items-center justify-center bg-white">
+                    {% if item.info.imagen %}
+                        <img src="{{ item.info.imagen.url }}" class="max-h-full max-w-full object-contain mr-8">
+                    {% else %}
+                        <img src="https://via.placeholder.com/150?text=Sin+Foto" class="w-full h-full object-contain opacity-20 mr-8">
+                    {% endif %}
+                </div>
                 
                 <div class="flex-grow">
                     <span class="text-[10px] font-bold text-red-600 uppercase tracking-widest">{{ item.info.categoria.nombre }}</span>
@@ -30,7 +35,7 @@
 
                 <div class="text-right pr-6">
                     <p class="text-[9px] font-bold text-gray-400 uppercase tracking-widest mb-1">Subtotal</p>
-                    <p class="text-xl font-black text-zinc-900 italic">Gs {{ item.subtotal|floatformat:0|intcomma }}</p></p>
+                    <p class="text-xl font-black text-zinc-900 italic">Gs {{ item.subtotal|floatformat:0|intcomma }}</p>
                 </div>
             </div>
             {% endfor %}
@@ -47,7 +52,7 @@
             <div class="space-y-4 mb-8">
                 <div class="flex justify-between text-sm text-gray-400 font-bold uppercase tracking-widest">
                     <span>Subtotal</span>
-                    <span>$ {{ total|floatformat:0|intcomma }}</span>
+                    <span>Gs {{ total|floatformat:0|intcomma }}</span>
                 </div>
                 <div class="flex justify-between text-sm text-gray-400 font-bold uppercase tracking-widest">
                     <span>Envío</span>

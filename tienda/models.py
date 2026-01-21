@@ -3,7 +3,7 @@ from django.db import models
 class Categoria(models.Model):
     nombre = models.CharField(max_length=100)
     icono = models.CharField(max_length=50) 
-    imagen_url = models.URLField()
+    imagen = models.ImageField(upload_to='categorias/', null=True, blank=True)
     slug = models.SlugField(unique=True)
     orden = models.IntegerField(default=0)
 
@@ -20,7 +20,7 @@ class Subcategoria(models.Model):
 
 class Marca(models.Model):
     nombre = models.CharField(max_length=100)
-    imagen_url = models.URLField()
+    imagen = models.ImageField(upload_to='marcas/', null=True, blank=True) 
     orden = models.IntegerField(default=0) 
 
     def __str__(self):
@@ -36,7 +36,7 @@ class Producto(models.Model):
     nombre = models.CharField(max_length=200)
     precio = models.DecimalField(max_digits=100, decimal_places=3) 
     descripcion = models.TextField()
-    imagen_url = models.URLField()
+    imagen = models.ImageField(upload_to='productos/', null=True, blank=True)
     categoria = models.ForeignKey(Categoria, on_delete=models.CASCADE)
     subcategoria = models.ForeignKey(Subcategoria, on_delete=models.SET_NULL, null=True, blank=True, related_name='productos')
     marca = models.ForeignKey(Marca, on_delete=models.CASCADE)
@@ -50,8 +50,21 @@ class Producto(models.Model):
 
 class ImagenProducto(models.Model):
     producto = models.ForeignKey(Producto, related_name='imagenes', on_delete=models.CASCADE)
-    imagen_url = models.URLField(help_text="URL de la imagen adicional")
+    imagen = models.ImageField(upload_to='productos/galeria/')
     orden = models.IntegerField(default=0)
 
     def __str__(self):
         return f"Imagen de {self.producto.nombre}"
+
+class Banner(models.Model):
+    texto_blanco = models.CharField("Texto en Blanco", max_length=100)
+    texto_rojo = models.CharField("Texto en Rojo", max_length=100)
+    imagen = models.ImageField("Imagen de fondo", upload_to='banners/')
+    link_url = models.CharField("Enlace (URL)", max_length=200, help_text="Ej: /productos/categoria/gaming/", default="/productos/")
+    orden = models.IntegerField("Posición", default=0)
+
+    class Meta:
+        ordering = ['orden']
+
+    def __str__(self):
+        return f"{self.texto_blanco} {self.texto_rojo}"

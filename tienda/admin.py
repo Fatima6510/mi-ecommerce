@@ -1,5 +1,12 @@
 from django.contrib import admin
 from .models import Categoria, Marca, Producto, Subcategoria, ImagenProducto 
+from .models import Banner
+
+@admin.register(Banner)
+class BannerAdmin(admin.ModelAdmin):
+    list_display = ('texto_blanco', 'texto_rojo', 'orden') 
+    list_editable = ('orden',)
+
 class SubcategoriaInline(admin.TabularInline):
     model = Subcategoria
     extra = 2

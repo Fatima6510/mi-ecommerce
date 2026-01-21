@@ -9,23 +9,30 @@
     body { font-family: 'Inter', sans-serif; scroll-behavior: smooth; }
     [id] { scroll-margin-top: 100px; }
 
-    /* OCULTAR BARRAS DE SCROLL PERO PERMITIR EL MOVIMIENTO */
+    /* Contenedor principal del Hero */
+    .hero-container {
+        width: 100%;
+        overflow: hidden;
+        position: relative;
+    }
+
+    /* El carrusel que se mueve */
+    .hero-wrapper {
+        display: flex;
+        transition: transform 0.7s cubic-bezier(0.4, 0, 0.2, 1); 
+        width: 100%;
+    }
+
+    /* Cada slide individual */
+    .hero-slide {
+        min-width: 100%;
+        width: 100%;
+        flex-shrink: 0;
+    }
+
+    /* Ocultar barras de scroll */
     .no-scrollbar::-webkit-scrollbar { display: none; }
     .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-
-    /* ZOOM LENTO PARA LAS FOTOS */
-    @keyframes slow-zoom {
-        0%, 100% { transform: scale(1); }
-        50% { transform: scale(1.1); }
-    }
-    .animate-zoom { animation: slow-zoom 20s infinite ease-in-out; }
-
-    /* MARCAS INFINITAS */
-    @keyframes marquee {
-        from { transform: translateX(0); }
-        to { transform: translateX(-50%); }
-    }
-    .animate-marquee { display: flex; width: max-content; animation: marquee 30s linear infinite; }
 </style>
 
     <title>Tech Shop | Tecnologías de alta calidad</title>
@@ -35,7 +42,7 @@
     <!-- CHECKBOX OCULTO (Controla el Menú Lateral) -->
     <input type="checkbox" id="side-menu" class="hidden peer">
 
-<!-- MENÚ LATERAL (Sidebar Multi-Nivel Corregido) -->
+<!-- MENÚ LATERAL (Sidebar Multi-Nivel) -->
 <aside class="fixed top-0 left-0 h-full w-80 bg-white z-[70] shadow-2xl transform -translate-x-full peer-checked:translate-x-0 transition-transform duration-500 ease-in-out flex flex-col overflow-hidden">
     
     <!-- CABECERA FIJA DEL MENÚ -->
@@ -59,16 +66,14 @@
 
                 <div class="bg-gray-50 px-5 py-3 text-[9px] font-black text-gray-400 uppercase tracking-[0.3em]">Categorías</div>
 
-                <!-- BUCLE DE CATEGORÍAS (Actualizado para Base de Datos) -->
+                <!-- BUCLE DE CATEGORÍAS -->
                 {% for item in menu_lateral %}
                 <div class="border-b border-gray-50">
                     <input type="checkbox" id="sub-{{ item.slug }}" class="hidden peer">
                     
                     <label for="sub-{{ item.slug }}" class="flex items-center justify-between p-5 cursor-pointer hover:bg-gray-50 transition group">
                         <div class="flex items-center space-x-4">
-                            <!-- Cambio item.icon por item.icono -->
                             <span class="text-xl">{{ item.icono }}</span>
-                            <!-- Cambio item.nom por item.nombre -->
                             <span class="font-bold text-zinc-800 text-[11px] uppercase tracking-wider group-hover:text-red-600 transition">{{ item.nombre }}</span>
                         </div>
                         <svg class="w-4 h-4 text-gray-300 group-hover:text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" /></svg>

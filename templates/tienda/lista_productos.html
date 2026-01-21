@@ -1,49 +1,56 @@
 {% extends 'base.html' %}
 {% load humanize %}
+
 {% block content %}
 <div class="container mx-auto px-4 py-8">
-    
-    <!-- ENCABEZADO MÁS FINO -->
+    <!-- ENCABEZADO -->
     <div class="mb-10">
-        <h1 class="text-2xl font-black italic uppercase tracking-tighter text-zinc-900 leading-none">
-            {{ titulo }}
-        </h1>
+        <h1 class="text-2xl font-black italic uppercase tracking-tighter text-zinc-900 leading-none">{{ titulo }}</h1>
         <div class="h-1 w-12 bg-red-600 mt-3"></div>
     </div>
 
-    <!-- GRID COMPACTO -->
+    <!-- GRID COMPACTO  -->
     <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4 md:gap-5">
-        
         {% for p in productos %}
-        <div class="bg-white border border-zinc-300 rounded-xl overflow-hidden group hover:shadow-xl transition-all duration-500 flex flex-col">
+        <div class="bg-white border border-zinc-100 rounded-xl overflow-hidden group hover:shadow-xl transition-all duration-500 flex flex-col">
             
             <!-- CONTENEDOR DE IMAGEN -->
             <div class="relative h-44 md:h-48 bg-white flex items-center justify-center p-4 overflow-hidden">
-                <img src="{{ p.imagen_url }}" class="max-h-full w-auto object-contain transform group-hover:scale-110 transition duration-700">
-                
-                <!-- Overlay "Ver Detalles"-->
+                {% if p.imagen %}
+                    <img src="{{ p.imagen.url }}" class="max-h-full w-auto object-contain transform group-hover:scale-110 transition duration-700">
+                {% else %}
+                    <img src="https://via.placeholder.com/300x300?text=Sin+Imagen" class="max-h-full w-auto object-contain opacity-20">
+                {% endif %}
+
                 <a href="{% url 'detalle_producto' p.id %}" class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
                     <span class="bg-white text-black px-4 py-1.5 text-[9px] font-bold uppercase tracking-widest italic shadow-lg">Ver Detalles</span>
                 </a>
             </div>
             
-            <!-- INFO DEL PRODUCTO COMPACTA -->
-            <div class="p-4 text-center border-t border-zinc-300 bg-white flex-grow flex flex-col justify-between">
+            <!-- INFO DEL PRODUCTO -->
+            <div class="p-4 text-center border-t border-zinc-200 bg-white flex-grow flex flex-col justify-between">
                 <div>
                     <div class="flex items-center justify-center space-x-1.5 mb-1">
                         <h3 class="text-[10px] font-bold uppercase tracking-tight text-gray-400 truncate max-w-[120px]">{{ p.nombre }}</h3>
-                        {% if p.stock == 'disponible' %}
-                            <span class="w-1 h-1 rounded-full bg-green-500"></span>
-                        {% elif p.stock == 'agotado' %}
-                            <span class="w-1 h-1 rounded-full bg-red-500"></span>
-                        {% endif %}
+                        {% if p.stock == 'disponible' %}<span class="w-1 h-1 rounded-full bg-green-500"></span>
+                        {% elif p.stock == 'agotado' %}<span class="w-1 h-1 rounded-full bg-red-500"></span>{% endif %}
                     </div>
                     <p class="text-red-600 font-black text-xl italic leading-none">Gs {{ p.precio|floatformat:0|intcomma }}</p>
                 </div>
+
+                {% if p.stock == 'disponible' %}
+                <a href="{% url 'añadir_al_carrito' p.id %}" class="mt-4 block w-full bg-zinc-900 text-white py-2 text-[8px] font-black uppercase tracking-widest hover:bg-red-600 transition">Añadir</a>
+                {% else %}
+                <span class="mt-4 block w-full bg-gray-100 text-gray-400 py-2 text-[8px] font-black uppercase tracking-widest text-center italic">Consultar</span>
+                {% endif %}
             </div>
         </div>
+        {% empty %}
+        <div class="col-span-full text-center py-20">
+            <p class="text-gray-400 font-bold uppercase tracking-widest italic">No se encontraron productos</p>
+            <a href="{% url 'lista_productos' %}" class="text-red-600 font-black uppercase text-xs border-b border-red-600 mt-4 inline-block">Ver todo el catálogo</a>
+        </div>
         {% endfor %}
-
     </div>
 </div>
 {% endblock %}
