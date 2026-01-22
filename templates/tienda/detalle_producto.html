@@ -32,16 +32,15 @@
             <div class="main-img-box relative bg-white p-8 md:p-12 rounded-[40px] border border-zinc-100 shadow-sm flex items-center justify-center h-[400px] md:h-[500px] overflow-hidden">
                 {% if p.imagen %}
                     <img src="{{ p.imagen.url }}" class="img-0 max-h-full w-auto object-contain">
-                {% else %}
-                    <img src="https://via.placeholder.com/500x500?text=Sin+Imagen" class="img-0 max-h-full w-auto object-contain opacity-20">
                 {% endif %}
 
+                <!-- Imágenes extras de la Galería -->
                 {% for img in p.imagenes.all %}
-                    <img src="{{ img.imagen_url }}" class="img-{{ forloop.counter }} max-h-full w-auto object-contain">
+                    <img src="{{ img.imagen.url }}" class="img-{{ forloop.counter }} max-h-full w-auto object-contain">
                 {% endfor %}
             </div>
 
-            <!-- MINIATURAS  -->
+            <!-- MINIATURAS (Thumbnails) -->
             <div class="flex flex-wrap gap-4 justify-center md:justify-start">
                 {% if p.imagen %}
                 <label for="pic-0" class="w-20 h-20 border-2 border-zinc-100 rounded-2xl p-2 cursor-pointer transition flex items-center justify-center bg-white shadow-sm hover:border-red-600">
@@ -51,12 +50,12 @@
 
                 {% for img in p.imagenes.all %}
                 <label for="pic-{{ forloop.counter }}" class="w-20 h-20 border-2 border-zinc-100 rounded-2xl p-2 cursor-pointer transition flex items-center justify-center bg-white shadow-sm hover:border-red-600">
-                    <img src="{{ img.imagen_url }}" class="max-h-full object-contain">
+                    <img src="{{ img.imagen.url }}" class="max-h-full object-contain">
                 </label>
                 {% endfor %}
             </div>
         </div>
-
+        
         <!-- LADO DERECHO: INFORMACIÓN -->
         <div class="flex flex-col pt-4">
             <span class="text-red-600 font-black text-[10px] uppercase tracking-[0.4em] mb-4 italic">

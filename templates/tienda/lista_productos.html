@@ -3,54 +3,89 @@
 
 {% block content %}
 <div class="container mx-auto px-4 py-8">
-    <!-- ENCABEZADO -->
-    <div class="mb-10">
-        <h1 class="text-2xl font-black italic uppercase tracking-tighter text-zinc-900 leading-none">{{ titulo }}</h1>
-        <div class="h-1 w-12 bg-red-600 mt-3"></div>
-    </div>
+    
+    <div class="flex flex-col md:flex-row gap-8">
+        
+        <!-- SIDEBAR DE FILTROS (Izquierda) -->
+        <aside class="w-full md:w-64 flex-shrink-0">
+            <div class="sticky top-28">
 
-    <!-- GRID COMPACTO  -->
-    <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4 md:gap-5">
-        {% for p in productos %}
-        <div class="bg-white border border-zinc-100 rounded-xl overflow-hidden group hover:shadow-xl transition-all duration-500 flex flex-col">
-            
-            <!-- CONTENEDOR DE IMAGEN -->
-            <div class="relative h-44 md:h-48 bg-white flex items-center justify-center p-4 overflow-hidden">
-                {% if p.imagen %}
-                    <img src="{{ p.imagen.url }}" class="max-h-full w-auto object-contain transform group-hover:scale-110 transition duration-700">
-                {% else %}
-                    <img src="https://via.placeholder.com/300x300?text=Sin+Imagen" class="max-h-full w-auto object-contain opacity-20">
-                {% endif %}
+                <!-- ACORDEÓN DE MARCAS -->
+                <details open class="group border-b border-zinc-100 pb-6">
+                    <summary class="flex items-center justify-between cursor-pointer list-none">
+                        <span class="text-sm font-black uppercase italic tracking-tighter text-zinc-900">Marcas</span>
+                        <!-- Flechita que gira -->
+                        <svg class="w-4 h-4 transition-transform group-open:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                        </svg>
+                    </summary>
 
-                <a href="{% url 'detalle_producto' p.id %}" class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
-                    <span class="bg-white text-black px-4 py-1.5 text-[9px] font-bold uppercase tracking-widest italic shadow-lg">Ver Detalles</span>
-                </a>
+                    <!-- Formulario de Filtros -->
+                    <form action="" method="GET" class="mt-6 flex flex-col space-y-3">
+                        {% if request.GET.q %}<input type="hidden" name="q" value="{{ request.GET.q }}">{% endif %}
+                        {% if request.GET.sub %}<input type="hidden" name="sub" value="{{ request.GET.sub }}">{% endif %}
+
+                        {% for m in marcas_filtro %}
+                        <label class="flex items-center space-x-3 cursor-pointer group/label">
+                            <!-- Checkbox Real -->
+                            <input type="checkbox" name="marca" value="{{ m.nombre }}" 
+                                   {% if m.nombre in marcas_active %}checked{% endif %}
+                                   onchange="this.form.submit()" 
+                                   class="w-4 h-4 rounded border-zinc-300 text-red-600 focus:ring-red-600">
+                            
+                            <span class="text-[11px] font-bold uppercase {% if m.nombre in marcas_active %}text-black{% else %}text-zinc-500{% endif %} group-hover/label:text-red-600">
+                                {{ m.nombre }}
+                            </span>
+                        </label>
+                        {% endfor %}
+                        
+                        <noscript>
+                            <button type="submit" class="bg-black text-white text-[9px] py-1 mt-2 uppercase font-bold">Filtrar</button>
+                        </noscript>
+                    </form>
+                </details>
             </div>
-            
-            <!-- INFO DEL PRODUCTO -->
-            <div class="p-4 text-center border-t border-zinc-200 bg-white flex-grow flex flex-col justify-between">
+        </aside>
+
+        <!-- LISTADO DE PRODUCTOS (Derecha) -->
+        <div class="flex-grow">
+            <!-- Título de la página -->
+            <div class="mb-10 flex items-end justify-between border-b border-zinc-100 pb-4">
                 <div>
-                    <div class="flex items-center justify-center space-x-1.5 mb-1">
-                        <h3 class="text-[10px] font-bold uppercase tracking-tight text-gray-400 truncate max-w-[120px]">{{ p.nombre }}</h3>
-                        {% if p.stock == 'disponible' %}<span class="w-1 h-1 rounded-full bg-green-500"></span>
-                        {% elif p.stock == 'agotado' %}<span class="w-1 h-1 rounded-full bg-red-500"></span>{% endif %}
-                    </div>
-                    <p class="text-red-600 font-black text-xl italic leading-none">Gs {{ p.precio|floatformat:0|intcomma }}</p>
+                    <h1 class="text-3xl font-black italic uppercase tracking-tighter text-zinc-900">{{ titulo }}</h1>
+                    <p class="text-[9px] font-bold text-gray-400 uppercase tracking-widest mt-1">Mostrando {{ productos|length }} resultados</p>
                 </div>
+            </div>
 
-                {% if p.stock == 'disponible' %}
-                <a href="{% url 'añadir_al_carrito' p.id %}" class="mt-4 block w-full bg-zinc-900 text-white py-2 text-[8px] font-black uppercase tracking-widest hover:bg-red-600 transition">Añadir</a>
-                {% else %}
-                <span class="mt-4 block w-full bg-gray-100 text-gray-400 py-2 text-[8px] font-black uppercase tracking-widest text-center italic">Consultar</span>
-                {% endif %}
+            <!-- Grid de productos (Ahora 4 columnas porque el sidebar ocupa espacio) -->
+            <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                {% for p in productos %}
+                <div class="bg-white border border-zinc-100 rounded-xl overflow-hidden group hover:shadow-xl transition-all duration-500 flex flex-col">
+                    <div class="relative h-44 bg-white flex items-center justify-center p-6 overflow-hidden">
+                        {% if p.imagen %}<img src="{{ p.imagen.url }}" class="max-h-full w-auto object-contain transform group-hover:scale-110 transition duration-700">{% endif %}
+                        <a href="{% url 'detalle_producto' p.id %}" class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
+                            <span class="bg-white text-black px-4 py-1.5 text-[9px] font-bold uppercase tracking-widest italic shadow-lg">Ver Detalles</span>
+                        </a>
+                    </div>
+                    <div class="p-4 text-center border-t border-zinc-200 bg-white flex-grow flex flex-col justify-between">
+                        <div>
+                            <div class="flex items-center justify-center space-x-1.5 mb-1">
+                                <h3 class="text-[10px] font-bold uppercase tracking-tight text-gray-400 truncate">{{ p.nombre }}</h3>
+                                {% if p.stock == 'disponible' %}<span class="w-1 h-1 rounded-full bg-green-500"></span>{% endif %}
+                            </div>
+                            <p class="text-red-600 font-black text-xl italic leading-none">Gs {{ p.precio|floatformat:0|intcomma }}</p>
+                        </div>
+                        <a href="{% url 'añadir_al_carrito' p.id %}" class="mt-4 block w-full bg-zinc-900 text-white py-2 text-[8px] font-black uppercase tracking-widest hover:bg-red-600 transition">Añadir</a>
+                    </div>
+                </div>
+                {% empty %}
+                <div class="col-span-full text-center py-20 bg-zinc-50 rounded-3xl border-2 border-dashed">
+                    <p class="text-gray-400 font-black uppercase italic">No se encontraron productos</p>
+                </div>
+                {% endfor %}
             </div>
         </div>
-        {% empty %}
-        <div class="col-span-full text-center py-20">
-            <p class="text-gray-400 font-bold uppercase tracking-widest italic">No se encontraron productos</p>
-            <a href="{% url 'lista_productos' %}" class="text-red-600 font-black uppercase text-xs border-b border-red-600 mt-4 inline-block">Ver todo el catálogo</a>
-        </div>
-        {% endfor %}
+
     </div>
 </div>
 {% endblock %}

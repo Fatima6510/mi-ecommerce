@@ -1,5 +1,6 @@
 from django.shortcuts import render, Http404, redirect
 from .models import Producto, Categoria, Marca, Banner
+import urllib.parse
 
 def home(request):
     banners_query = Banner.objects.all().order_by('orden')
@@ -21,31 +22,35 @@ def home(request):
 
 def lista_productos(request, slug=None):
     query = request.GET.get('q')
-    marca_filtro = request.GET.get('marca')
+    marcas_seleccionadas = request.GET.getlist('marca') 
     sub_filtro = request.GET.get('sub')
     
-    productos = Producto.objects.all()
-    titulo = "Catálogo Completo"
+    productos = Producto.objects.all().order_by('orden')
+    titulo = "Todos los Productos"
 
-    if query:
-        productos = productos.filter(nombre__icontains=query)
-        titulo = f"Resultados para: '{query}'"
-    elif sub_filtro:
-        productos = productos.filter(subcategoria__nombre=sub_filtro)
-        titulo = f"Categoría: {sub_filtro}"
-    elif slug:
+    if slug:
         cat = Categoria.objects.get(slug=slug)
         productos = productos.filter(categoria=cat)
         titulo = cat.nombre
-    elif marca_filtro:
-        m = Marca.objects.get(nombre=marca_filtro)
-        productos = productos.filter(marca=m)
-        titulo = f"Marca: {m.nombre}"
+    elif sub_filtro:
+        productos = productos.filter(subcategoria__nombre=sub_filtro)
+        titulo = sub_filtro   
+    marcas_ids = productos.values_list('marca_id', flat=True).distinct()
+    marcas_disponibles = Marca.objects.filter(id__in=marcas_ids).order_by('nombre')
+
+    if marcas_seleccionadas:
+        productos = productos.filter(marca__nombre__in=marcas_seleccionadas)
+        titulo = f"Filtro: {', '.join(marcas_seleccionadas)}"
+    
+    if query:
+        productos = productos.filter(nombre__icontains=query)
 
     return render(request, 'tienda/lista_productos.html', {
         'productos': productos,
         'titulo': titulo,
-        'menu_lateral': Categoria.objects.all().prefetch_related('subcategorias').order_by('orden'),
+        'marcas_filtro': marcas_disponibles,
+        'marcas_active': marcas_seleccionadas, 
+        'menu_lateral': Categoria.objects.all().prefetch_related('subcategorias'),
     })
 
 def detalle_producto(request, id):
@@ -82,14 +87,36 @@ def eliminar_del_carrito(request, id):
 
 def ver_carrito(request):
     carrito_dict = request.session.get('carrito', {})
-    items, total = [], 0
-    for pid, cant in carrito_dict.items():
-        p = Producto.objects.filter(id=pid).first()
+    productos_carrito = []
+    total = 0
+    mensaje = "Hola TECH SHOP! Me gustaría consultar sobre este pedido:\n\n"
+
+    for p_id, cantidad in carrito_dict.items():
+        p = Producto.objects.filter(id=p_id).first()
         if p:
-            sub = p.precio * cant
-            total += sub
-            items.append({'info': p, 'cantidad': cant, 'subtotal': sub})
-    return render(request, 'tienda/carrito.html', {'carrito': items, 'total': total, 'menu_lateral': Categoria.objects.all().prefetch_related('subcategorias')})
+            subtotal = p.precio * cantidad
+            total += subtotal
+            #se agrega el mensaje mas los productos
+            mensaje += f"• {p.nombre} (x{cantidad}) - Gs {int(subtotal):,}\n".replace(',', '.')
+            
+            productos_carrito.append({
+                'info': p,
+                'cantidad': cantidad,
+                'subtotal': subtotal
+            })
+    
+    mensaje += f"\n*TOTAL ESTIMADO: Gs {int(total):,}\n*".replace(',', '.')
+    
+    # Se convierte el texto a un formato que entienda el navegador
+    mensaje_url = urllib.parse.quote(mensaje)
+    whatsapp_link = f"https://wa.me/595994324702?text={mensaje_url}"
+
+    return render(request, 'tienda/carrito.html', {
+        'carrito': productos_carrito,
+        'total': total,
+        'whatsapp_url': whatsapp_link,
+        'menu_lateral': Categoria.objects.all().prefetch_related('subcategorias')
+    })
 
 def vaciar_carrito(request):
     request.session['carrito'] = {}

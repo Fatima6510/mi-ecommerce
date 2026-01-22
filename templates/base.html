@@ -33,7 +33,30 @@
     /* Ocultar barras de scroll */
     .no-scrollbar::-webkit-scrollbar { display: none; }
     .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+    /* ESTO SE ACTIVA SOLO AL IMPRIMIR LA COMPRA */
+    @media print {
+        nav, aside, footer, button, .no-print, form {
+            display: none !important;
+        }
+        body {
+            background-color: white !important;
+        }
+        .container {
+            width: 100% !important;
+            max-width: 100% !important;
+            margin: 0 !important;
+            padding: 0 !important;
+        }
+        /* Hace que la caja de resumen no sea negra al imprimir para ahorrar tinta */
+        .bg-zinc-900 {
+            background-color: white !important;
+            color: black !important;
+            border: 1px solid #eee !important;
+        }
+    }
 </style>
+    
 
     <title>Tech Shop | Tecnologías de alta calidad</title>
 </head>
