@@ -1,1 +1,1 @@
-# TechShop - E-commerce 
+# TechShop v1.2
