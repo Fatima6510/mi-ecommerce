@@ -1,10 +1,11 @@
 from django.shortcuts import render, Http404, redirect
-from .models import Producto, Categoria, Marca, Banner
+from .models import Producto, Categoria, Marca, Banner, PromoBanner
 import urllib.parse
 
 def home(request):
     banners_query = Banner.objects.all().order_by('orden')
     banners_list = list(banners_query)
+    promo = PromoBanner.objects.filter(activo=True).first()
 
     if banners_list:
         banners_final = banners_list + [banners_list[0]]
@@ -18,6 +19,7 @@ def home(request):
         'marcas': Marca.objects.all().order_by('orden'),
         'categorias': Categoria.objects.all().order_by('orden'),
         'menu_lateral': Categoria.objects.all().prefetch_related('subcategorias').order_by('orden'),
+        'promo': promo,
     })
 
 def lista_productos(request, slug=None):

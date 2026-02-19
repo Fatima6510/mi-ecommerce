@@ -124,27 +124,27 @@
     </div>
 </section>
 
-<!-- SECCIÓN: BANNER MUNDO GAMING -->
+<!-- SECCIÓN: BANNER PROMO -->
+{% if promo %}
 <section class="py-10">
-    <div class="container mx-auto px-6"><div class="relative h-[450px] rounded-[40px] overflow-hidden group">
-        <img src="https://images.unsplash.com/photo-1542751371-adc38448a05e?w=1600" class="w-full h-full object-cover transition duration-1000 group-hover:scale-110">
-        <div class="absolute inset-0 bg-gradient-to-r from-black via-black/40 to-transparent"></div>
-        <div class="absolute inset-0 flex flex-col justify-center px-12 md:px-20 text-white">
-            <span class="text-red-600 font-black uppercase tracking-[0.4em] text-[10px] mb-4 italic">Equipamiento Pro</span>
-            <h2 class="text-5xl md:text-7xl font-black italic uppercase tracking-tighter mb-6 leading-none">MUNDO <br> <span class="text-red-600">GAMING</span></h2>
-            <a href="{% url 'lista_productos' %}?q=gaming" class="bg-white text-black px-12 py-4 text-[10px] font-black uppercase tracking-widest hover:bg-red-600 hover:text-white transition w-fit shadow-2xl">Explorar Colección</a>
+    <div class="container mx-auto px-6">
+        <div class="relative h-[450px] rounded-[40px] overflow-hidden group">
+            <img src="{{ promo.imagen.url }}" class="w-full h-full object-cover transition duration-1000 group-hover:scale-110">
+            <div class="absolute inset-0 bg-gradient-to-r from-black via-black/40 to-transparent"></div>
+            <div class="absolute inset-0 flex flex-col justify-center px-12 md:px-20 text-white">
+                <span class="text-red-600 font-black uppercase tracking-[0.4em] text-[10px] mb-4 italic">{{ promo.subtitulo }}</span>
+                <h2 class="text-5xl md:text-7xl font-black italic uppercase tracking-tighter mb-6 leading-none">
+                    {{ promo.titulo_blanco }} <br> <span class="text-red-600">{{ promo.titulo_rojo }}</span>
+                </h2>
+                <a href="{{ promo.link_url }}" class="bg-white text-black px-12 py-4 text-[10px] font-black uppercase tracking-widest hover:bg-red-600 hover:text-white transition-all duration-500 w-fit shadow-2xl">
+                    Explorar Colección
+                </a>
+            </div>
         </div>
-    </div></div>
+    </div>
 </section>
+{% endif %}
 
-<!-- SECCIÓN: BENEFICIOS -->
-<section class="py-20 bg-zinc-50 border-y border-gray-100">
-    <div class="container mx-auto px-6"><div class="grid grid-cols-1 md:grid-cols-3 gap-16 text-center">
-        <div class="flex flex-col items-center"><div class="w-16 h-16 bg-white shadow-xl rounded-2xl flex items-center justify-center mb-6"><span class="text-3xl">🚚</span></div><h4 class="font-black uppercase italic text-sm tracking-tighter">Envío Nacional</h4></div>
-        <div class="flex flex-col items-center"><div class="w-16 h-16 bg-white shadow-xl rounded-2xl flex items-center justify-center mb-6"><span class="text-3xl">🛡️</span></div><h4 class="font-black uppercase italic text-sm tracking-tighter">Garantía Oficial</h4></div>
-        <div class="flex flex-col items-center"><div class="w-16 h-16 bg-white shadow-xl rounded-2xl flex items-center justify-center mb-6"><span class="text-3xl">💳</span></div><h4 class="font-black uppercase italic text-sm tracking-tighter">Pagos Seguros</h4></div>
-    </div></div>
-</section>
 
 <!-- SECCIÓN 4: MARCAS -->
 <section id="marcas" class="py-16 bg-white border-t border-zinc-100">
