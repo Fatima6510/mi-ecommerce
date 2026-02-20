@@ -118,7 +118,7 @@
         </div>
     </div>
 
-    <!-- SECCIÓN INFERIOR: ESPECIFICACIONES -->
+    <!-- SECCIÓN INFERIOR: ESPECIFICACIONES (Para más interes) -->
     <div class="mt-12 border-t border-zinc-100 pt-10 max-w-5xl mx-auto">
         <h2 class="text-xl font-black italic uppercase tracking-tighter mb-6 text-zinc-900">Especificaciones Técnicas</h2>
         <div class="space-y-2 max-w-3xl">
@@ -137,4 +137,43 @@
         </div>
     </div>
 </div>
+
+<!-- SECCIÓN: PRODUCTOS RELACIONADOS -->
+<section class="mt-16 border-t border-zinc-100 pt-12 max-w-6xl mx-auto">
+    <div class="flex items-center justify-between mb-8">
+        <div class="flex items-center space-x-3">
+            <h2 class="text-lg font-black italic uppercase tracking-tighter text-zinc-800">También te puede interesar</h2>
+            <div class="h-[2px] w-8 bg-red-600"></div>
+        </div>
+        <a href="{% url 'lista_productos' %}?categoria={{ p.categoria.nombre }}" class="text-[9px] font-black text-red-600 hover:text-black transition uppercase tracking-[0.2em] border-b border-red-600 pb-0.5">
+            Ver más {{ p.categoria.nombre }}
+        </a>
+    </div>
+    <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4">
+        {% for r in relacionados %}
+        <div class="bg-white border border-zinc-100 rounded-xl overflow-hidden group/rel transition-all duration-500 hover:shadow-xl flex flex-col">
+            <div class="relative h-36 md:h-40 bg-white flex items-center justify-center p-4 overflow-hidden">
+                {% if r.imagen %}
+                    <img src="{{ r.imagen.url }}" class="max-h-full w-auto object-contain transform group-hover/rel:scale-110 transition duration-700">
+                {% endif %}
+                <a href="{% url 'detalle_producto' r.id %}" class="absolute inset-0 bg-black/5 opacity-0 group-hover/rel:opacity-100 transition-opacity flex items-center justify-center">
+                    <span class="bg-white/90 backdrop-blur-sm text-black px-3 py-1 text-[8px] font-bold uppercase tracking-widest shadow-lg">Ver info</span>
+                </a>
+            </div>
+            <div class="p-3 text-center border-t border-zinc-200 bg-white flex-grow">
+                <h3 class="text-[9px] font-bold uppercase tracking-tight text-gray-400 truncate mb-1">
+                    {{ r.nombre }}
+                </h3>
+                <p class="text-red-600 font-black text-sm italic leading-none">
+                    Gs {{ r.precio|floatformat:0|intcomma }}
+                </p>
+            </div>
+        </div>
+        {% empty %}
+        <p class="col-span-full text-center text-zinc-300 text-[10px] font-bold uppercase tracking-widest py-10">
+            No hay más productos similares en este momento.
+        </p>
+        {% endfor %}
+    </div>
+</section>
 {% endblock %}

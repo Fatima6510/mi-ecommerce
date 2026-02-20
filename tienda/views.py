@@ -1,6 +1,7 @@
 from django.shortcuts import render, Http404, redirect
 from .models import Producto, Categoria, Marca, Banner, PromoBanner
 import urllib.parse
+from django.contrib import messages
 
 def home(request):
     banners_query = Banner.objects.all().order_by('orden')
@@ -57,19 +58,24 @@ def lista_productos(request, slug=None):
 
 def detalle_producto(request, id):
     p = Producto.objects.prefetch_related('imagenes').filter(id=id).first()
-    if not p: raise Http404()
+    if not p: 
+        raise Http404()
+    relacionados = Producto.objects.filter(categoria=p.categoria).exclude(id=p.id).order_by('?')[:4]
+
     return render(request, 'tienda/detalle_producto.html', {
         'p': p,
+        'relacionados': relacionados,
         'menu_lateral': Categoria.objects.all().prefetch_related('subcategorias').order_by('orden'),
     })
-
 # --- CARRITO ---
 def añadir_al_carrito(request, id):
+    p = Producto.objects.get(id=id)
     carrito = request.session.get('carrito', {})
     if not isinstance(carrito, dict): carrito = {}
     id_s = str(id)
     carrito[id_s] = carrito.get(id_s, 0) + 1
     request.session['carrito'] = carrito
+    messages.success(request, f"{p.nombre} añadido al carrito.") # Alerta de éxito
     return redirect(request.META.get('HTTP_REFERER', 'home'))
 
 def restar_del_carrito(request, id):
