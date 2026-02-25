@@ -40,18 +40,15 @@ TechShop es una plataforma de comercio electrónico profesional diseñada con un
    ```bash
    git clone https://github.com/Fatima6510/mi-ecommerce.git
 
-Crear y activar entorno virtual:
-code
-Bash
+2. Crear y activar entorno virtual:
+
 python -m venv venv
 venv\Scripts\activate
-Instalar dependencias:
-code
-Bash
+
+3. Instalar dependencias:
 pip install -r requirements.txt
-Ejecutar migraciones e iniciar:
-code
-Bash
+
+4. Ejecutar migraciones e iniciar:
 python manage.py migrate
 python manage.py runserver
 
