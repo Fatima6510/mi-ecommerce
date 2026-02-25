@@ -124,26 +124,95 @@
     </div>
 </section>
 
-<!-- SECCIÓN: BANNER PROMO -->
-{% if promo %}
-<section class="py-10">
+<!-- SECCIÓN: PROMO BANNERS -->
+{% if promos %}
+<section class="py-10 relative group/promo overflow-hidden">
     <div class="container mx-auto px-6">
-        <div class="relative h-[450px] rounded-[40px] overflow-hidden group">
-            <img src="{{ promo.imagen.url }}" class="w-full h-full object-cover transition duration-1000 group-hover:scale-110">
-            <div class="absolute inset-0 bg-gradient-to-r from-black via-black/40 to-transparent"></div>
-            <div class="absolute inset-0 flex flex-col justify-center px-12 md:px-20 text-white">
-                <span class="text-red-600 font-black uppercase tracking-[0.4em] text-[10px] mb-4 italic">{{ promo.subtitulo }}</span>
-                <h2 class="text-5xl md:text-7xl font-black italic uppercase tracking-tighter mb-6 leading-none">
-                    {{ promo.titulo_blanco }} <br> <span class="text-red-600">{{ promo.titulo_rojo }}</span>
-                </h2>
-                <a href="{{ promo.link_url }}" class="bg-white text-black px-12 py-4 text-[10px] font-black uppercase tracking-widest hover:bg-red-600 hover:text-white transition-all duration-500 w-fit shadow-2xl">
-                    Explorar Colección
-                </a>
+        
+        <div class="relative rounded-[40px] overflow-hidden bg-black h-[450px]">
+            <div id="promo-wrapper" class="flex h-full transition-transform duration-700 ease-in-out">
+                
+                {% for p in promos %}
+                <div class="h-full min-w-full flex-shrink-0 relative overflow-hidden">
+                    {% if p.imagen %}
+                        <img src="{{ p.imagen.url }}" class="w-full h-full object-cover transition duration-1000 group-hover:scale-110">
+                    {% endif %}
+                    
+                    <div class="absolute inset-0 bg-gradient-to-r from-black via-black/40 to-transparent"></div>
+                    
+                    <div class="absolute inset-0 flex flex-col justify-center px-12 md:px-20 text-white">
+                        <span class="text-red-600 font-black uppercase tracking-[0.4em] text-[10px] mb-4 italic">{{ p.subtitulo }}</span>
+                        <h2 class="text-5xl md:text-7xl font-black italic uppercase tracking-tighter mb-6 leading-none">
+                            {{ p.titulo_blanco }} <br> <span class="text-red-600">{{ p.titulo_rojo }}</span>
+                        </h2>
+                        
+                        {% if p.slug %}
+                            <a href="{% url 'ver_promo' p.slug %}" class="bg-white text-black px-12 py-4 text-[10px] font-black uppercase tracking-widest hover:bg-red-600 hover:text-white transition-all duration-500 w-fit shadow-2xl">
+                                Explorar Ofertas
+                            </a>
+                        {% endif %}
+                    </div>
+                </div>
+                {% endfor %}
+
             </div>
         </div>
+
+        <!-- FLECHAS  -->
+        <button onclick="navPromo(-1)" class="absolute left-10 top-1/2 -translate-y-1/2 z-30 bg-white/10 backdrop-blur-md w-12 h-12 rounded-full flex items-center justify-center opacity-0 group-hover/promo:opacity-100 transition-all hover:bg-red-600 text-white shadow-2xl">❮</button>
+        <button onclick="navPromo(1)" class="absolute right-10 top-1/2 -translate-y-1/2 z-30 bg-white/10 backdrop-blur-md w-12 h-12 rounded-full flex items-center justify-center opacity-0 group-hover/promo:opacity-100 transition-all hover:bg-red-600 text-white shadow-2xl">❯</button>
+
     </div>
 </section>
 {% endif %}
+
+<script>
+    const pWrapper = document.getElementById('promo-wrapper');
+    const pSlides = pWrapper ? pWrapper.children.length : 0;
+    let pIndex = 0;
+    let pInterval;
+
+    function actualizarPosicionPromo() {
+        if (!pWrapper) return;
+        // Ahora movemos de 100% en 100% porque cada slide es min-w-full
+        pWrapper.style.transform = `translateX(-${pIndex * 100}%)`;
+    }
+
+    function moverSiguientePromo() {
+        if (!pWrapper) return;
+        pIndex++;
+        pWrapper.style.transition = "transform 0.7s cubic-bezier(0.4, 0, 0.2, 1)";
+        actualizarPosicionPromo();
+
+        // Si llegamos al clon (el último de la lista)
+        if (pIndex === pSlides - 1) {
+            setTimeout(() => {
+                pWrapper.style.transition = "none"; // Salto invisible
+                pIndex = 0;
+                actualizarPosicionPromo();
+            }, 700);
+        }
+    }
+
+    function navPromo(direccion) {
+        if (!pWrapper) return;
+        clearInterval(pInterval);
+        pIndex += direccion;
+
+        if (pIndex < 0) pIndex = pSlides - 2;
+        if (pIndex >= pSlides - 1) pIndex = 0;
+
+        pWrapper.style.transition = "transform 0.7s cubic-bezier(0.4, 0, 0.2, 1)";
+        actualizarPosicionPromo();
+        iniciarAutoPromo();
+    }
+
+    function iniciarAutoPromo() {
+        pInterval = setInterval(moverSiguientePromo, 6000);
+    }
+
+    iniciarAutoPromo();
+</script>
 
 
 <!-- SECCIÓN 4: MARCAS -->

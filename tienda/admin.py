@@ -3,6 +3,11 @@ from .models import Categoria, Marca, Producto, Subcategoria, ImagenProducto
 from .models import Banner, PromoBanner
 
 admin.site.register(PromoBanner)
+class PromoBannerAdmin(admin.ModelAdmin):
+    list_display = ('titulo_blanco', 'titulo_rojo', 'orden', 'activo')
+    list_editable = ('orden', 'activo') 
+    filter_horizontal = ('productos',)
+    prepopulated_fields = {'slug': ('titulo_blanco', 'titulo_rojo')}
 
 @admin.register(Banner)
 class BannerAdmin(admin.ModelAdmin):

@@ -71,13 +71,16 @@ class Banner(models.Model):
 
 # --- BANNER PROMOCIONAL INTERMEDIO ---
 class PromoBanner(models.Model):
-    subtitulo = models.CharField(max_length=100, default="Equipamiento Pro")
-    titulo_blanco = models.CharField(max_length=100, default="MUNDO")
-    titulo_rojo = models.CharField(max_length=100, default="GAMING")
+    subtitulo = models.CharField(max_length=100)
+    titulo_blanco = models.CharField(max_length=100)
+    titulo_rojo = models.CharField(max_length=100)
     descripcion = models.TextField(blank=True)
     imagen = models.ImageField(upload_to='promos/')
     link_url = models.CharField(max_length=200, default="/")
-    activo = models.BooleanField(default=True) # Para quitarlo/ponerlo cuando quieras
+    activo = models.BooleanField(default=True)
+    slug = models.SlugField(unique=True, help_text="Ej: promo-verano")
+    productos = models.ManyToManyField(Producto, blank=True, related_name='promociones')
+    orden = models.IntegerField(default=0) 
 
     def __str__(self):
-        return f"Promo: {self.titulo_blanco}"
+        return f"{self.titulo_blanco} {self.titulo_rojo}"
