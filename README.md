@@ -37,7 +37,7 @@ TechShop es una plataforma de comercio electrónico profesional diseñada con un
 ## 🚀 Instalación y Uso Local
 
 1. **Clonar el repositorio:**
-   ```bash
+```bash
    git clone https://github.com/Fatima6510/mi-ecommerce.git
 ```
 
